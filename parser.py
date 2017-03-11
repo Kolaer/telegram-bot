@@ -172,13 +172,14 @@ def parse(tokens):
 
 
 # Примеры
-print(parse(tokenize('1')))
-print(parse(tokenize('1j')))
-print(parse(tokenize('2 - 1j')))
-print(parse(tokenize('sin(2)')))
-print(parse(tokenize('(1 + 2) * 3')))
-print(parse(tokenize('x = y')))
-print(parse(tokenize('z = x + y^3')))
-print(parse(tokenize('unset x')))
-print(parse(tokenize('def f(x, y) = (2 + x) * y')))
-print(parse(tokenize('undef f')))
+if __name__ == '__main__':
+    print(parse(tokenize('1')))
+    print(parse(tokenize('1j')))
+    print(parse(tokenize('2 - 1j')))
+    print(parse(tokenize('sin(2)')))
+    print(parse(tokenize('(1 + 2) * 3')))
+    print(parse(tokenize('x = y')))
+    print(parse(tokenize('z = x + y^3')))
+    print(parse(tokenize('unset x')))
+    print(parse(tokenize('def f(x, y) = (2 + x) * y')))
+    print(parse(tokenize('undef f')))
