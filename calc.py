@@ -1,7 +1,8 @@
-from numbers import Number
-import parser
 import math
 import operator
+from numbers import Number
+
+import parser
 
 
 class Environment(object):
@@ -10,6 +11,7 @@ class Environment(object):
         self.variables = {'e': math.e, 'pi': math.pi}
         self.functions = {'+': (2, operator.add),
                           '-': (2, operator.sub),
+                          'neg': (1, lambda x: -x),
                           '*': (2, operator.mul),
                           '/': (2, operator.truediv),
                           '**': (2, operator.pow),
@@ -176,5 +178,6 @@ if __name__ == "__main__":
     print(calculate('unset x', env))
     print(calculate('undef f', env))
     print(calculate('cos(0)', env))
+    print(calculate('-2 + 2', env))
     print()
     print(env)

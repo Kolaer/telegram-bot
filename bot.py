@@ -1,4 +1,5 @@
 from telegram.ext import Updater, MessageHandler, Filters
+
 from calc import *
 
 fo = open("telegram_token", "r")
@@ -12,7 +13,7 @@ envs = dict()
 
 def text_handler(bot, update):
     chat_id = update.message.chat_id
-    if not chat_id in envs:
+    if chat_id not in envs:
         envs[chat_id] = Environment()
 
     text = update.message.text

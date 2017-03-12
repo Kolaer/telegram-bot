@@ -112,12 +112,16 @@ def parse(tokens):
 
         return make_apply(s[0], f_args)
 
+    def make_neg(s):
+        return make_apply('neg', [s])
+
     # Парсинг выражений по грамматикам
     @with_forward_decls
     def primary():
         expr_args = expr + many(op_(',') + expr)
         function_call = name + op_('(') + maybe(expr_args) + op_(')') >> make_function_call
-        return function_call | name | number | (op_('(') + expr + op_(')'))
+        neg = op_('-') + primary >> make_neg
+        return function_call | name | number | (op_('(') + expr + op_(')')) | neg
 
     # Парсинг выражений по грамматикам
     factor = primary + many(power + primary) >> make_expr
@@ -175,6 +179,7 @@ def parse(tokens):
 if __name__ == '__main__':
     print(parse(tokenize('1')))
     print(parse(tokenize('1j')))
+    print(parse(tokenize('-2')))
     print(parse(tokenize('2 - 1j')))
     print(parse(tokenize('sin(2)')))
     print(parse(tokenize('(1 + 2) * 3')))
