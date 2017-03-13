@@ -56,7 +56,7 @@ class Environment(object):
         if self.root is None:
             raise RuntimeError("Variable {} not found".format(variable))
 
-        self.root.get_var(variable)
+        return self.root.get_var(variable)
 
     def set_function(self, function, arity, body):
         if function in self.functions and self.functions[function][0]:
