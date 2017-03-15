@@ -36,7 +36,13 @@ def parse(tokens):
 
     def make_number(s):
         """Возвращает число из строки"""
-        return complex(s)
+        try:
+            return int(s)
+        except:
+            try:
+                return float(s)
+            except:
+                return complex(s)
 
     # Token -> Token.value
     tokval = lambda tok: tok.value
