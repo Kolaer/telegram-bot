@@ -22,27 +22,27 @@ class TreeTransformer(Transformer):
     def sub(self, x):
         a = x[0]
         b = x[1]
-        return ["apply", "-", a, b]
+        return ["apply", "-", [a, b]]
 
     def add(self, x):
         a = x[0]
         b = x[1]
-        return ["apply", "+", a, b]
+        return ["apply", "+", [a, b]]
 
     def mul(self, x):
         a = x[0]
         b = x[1]
-        return ["apply", "*", a, b]
+        return ["apply", "*", [a, b]]
 
     def div(self, x):
         a = x[0]
         b = x[1]
-        return ["apply", "/", a, b]
+        return ["apply", "/", [a, b]]
 
     def pow(self, x):
         a = x[0]
         b = x[1]
-        return ["apply", "pow", a, b]
+        return ["apply", "pow", [a, b]]
 
     def var(self, x):
         return str(x[0])
@@ -86,6 +86,9 @@ class TreeTransformer(Transformer):
 
     def matrix(self, x):
         return ['matrix', x]
+
+    def args(self, x):
+        return [k for k in x]
 
 
 def parse(s):

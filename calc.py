@@ -21,8 +21,7 @@ class Environment(object):
                           'neg': (1, lambda x: -x),
                           '*': (2, operator.mul),
                           '/': (2, operator.truediv),
-                          '**': (2, operator.pow),
-                          '^': (2, operator.pow),
+                          'pow': (2, operator.pow),
                           'sin': (1, math.sin),
                           'cos': (1, math.cos),
                           'tan': (1, math.tan),
@@ -115,7 +114,8 @@ def calculate(s, env):
             return expr
 
         if isinstance(expr, str):
-            if expr != "set" and expr != "apply" and expr != "unset" and expr != "def" and expr != "undef":
+            if expr != "set" and expr != "apply" and expr != "unset" and expr != "def" and expr != "undef" \
+                    and expr != "matrix":
                 return env.get_var(expr)
 
         (expr_type, *expr_body) = expr
@@ -173,8 +173,7 @@ def calculate(s, env):
 
         return evl(body, function_env)
 
-    tokens = parser.tokenize(s)
-    expr = parser.parse(tokens)
+    expr = parser.parse(s)
 
     return evl(expr, env)
 
