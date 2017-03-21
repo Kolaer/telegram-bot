@@ -1,77 +1,146 @@
 # Парсрер выражений вида: 1, 1+2, 1 + 2, 13e3, -23.5, 10+2j, sin(2)**2 + cos(3)^3, x = 3, def f(x,y,z) = x+y*z,f(x,2,1)
 
-import token
+from lark import Lark, Transformer
 
-from lark import Lark
 
-# Класс-обёртка для токенов
-class Token(object):
-    def __init__(self, code, value):
-        self.code = code
-        self.value = value
+class TreeTransformer(Transformer):
+    def unset(self, x):
+        return ["unset", str(x[0])]
 
-    @property
-    def type(self):
-        return token.tok_name[self.code]
+    def undef(self, func):
+        return ["undef", str(func[0])]
 
-    def __repr__(self):
-        return 'Token({}, \'{}\')'.format(self.type, self.value)
+    def num(self, x):
+        return float(x[0])
 
-    def __eq__(self, other):
-        return (self.code, self.value) == (other.code, other.value)
+    def complex_num(self, x):
+        return complex(0, float(x[0]))
+
+    def neg(self, x):
+        return -x[0]
+
+    def sub(self, x):
+        a = x[0]
+        b = x[1]
+        return ["apply", "-", a, b]
+
+    def add(self, x):
+        a = x[0]
+        b = x[1]
+        return ["apply", "+", a, b]
+
+    def mul(self, x):
+        a = x[0]
+        b = x[1]
+        return ["apply", "*", a, b]
+
+    def div(self, x):
+        a = x[0]
+        b = x[1]
+        return ["apply", "/", a, b]
+
+    def pow(self, x):
+        a = x[0]
+        b = x[1]
+        return ["apply", "pow", a, b]
+
+    def var(self, x):
+        return str(x[0])
+
+    def assign(self, x):
+        a = str(x[0])
+        b = x[1]
+        return ["set", a, b]
+
+    def func_call(self, x):
+        a = str(x[0])
+        b = x[1]
+        return ["apply", a, b]
+
+    def var_args(self, x):
+        return [str(a) for a in x]
+
+    def def_func(self, x):
+        a = str(x[0])
+        b = x[1]
+        c = x[2]
+        return ["def", a, b, c]
+
+    def atom_units(self, x):
+        a = x[0]
+        b = x[1]
+        return ['with_units', a, b]
+
+    def unit(self, x):
+        return ["unit", str(x[0])]
+
+    def unit_mul(self, x):
+        a = x[0]
+        b = x[1]
+        return ["unit_mul", a, b]
+
+    def unit_div(self, x):
+        a = x[0]
+        b = x[1]
+        return ["unit_div", a, b]
+
+    def matrix(self, x):
+        return ['matrix', x]
 
 
 def parse(s):
     parser = Lark(r"""
-    ?toplevel : sum meta
-              | NAME "=" sum -> set
-              | "unset" NAME  -> unset
-              | def
-              | "undef" NAME  -> undef
+    ?toplevel : expr
+              | assign
+              | unset
+              | def_func
+              | undef_func -> undef
 
-    ?meta     : ("{" units "}")? -> meta
+    ?assign : NAME "=" expr
 
-    ?sum      : term
-              | sum "+" term -> add
-              | sum "-" term -> sub
+    ?unset : "unset" NAME
 
-    ?term     : fact
-              | term "*" fact -> mul
-              | term "/" fact -> div
+    ?var_args : NAME ("," NAME)*
 
-    ?fact     : atom
-              | fact ("**" | "^") atom -> pow
+    ?def_func : "def" NAME "(" var_args? ")" "=" expr
 
-    ?args_val : sum ("," sum)*
+    ?undef_func : "undef" NAME
 
-    ?number_string : "\"" (/[0-9a-zA-Z]/)+ "\""
+    ?expr : term
+          | expr "+" term -> add
+          | expr "-" term -> sub
 
-    ?atom     : NUMBER -> number
-              | number_string "_" NATURAL -> number_base
-              | "-" atom -> neg
-              | atom ("i" | "j") -> imaginary
-              | NAME "(" args_val? ")" -> call
-              | NAME -> var
-              | "(" sum ")"
-              | "[" sum+ "]" -> matrix
+    ?term : exp
+          | term "*" exp -> mul
+          | term "/" exp -> div
 
-    ?units    : NAME
-              | units "*" NAME -> units_mul
-              | units "/" NAME -> units_div
-              | "(" units ")"
+    ?exp  : atom
+          | exp ("**" | "^") atom -> pow
 
-    ?args     : NAME ("," NAME)*
+    ?args : expr ("," expr)*
 
-    ?def      : "def" NAME "(" args? ")" "=" sum
+    ?units : NAME -> unit
+           | units "*" NAME -> unit_mul
+           | units "/" NAME -> unit_div
+           | "(" units ")"
 
-    NATURAL: /[1-9]/ (/[0-9]/)*
+    ?matrix : "[" expr+ "]"
+
+    ?atom : NUMBER -> num
+          | NUMBER ("i" | "j") -> complex_num
+          | NAME -> var
+          | "-" atom -> neg
+          | NAME "(" args? ")" -> func_call
+          | matrix
+          | atom "{" units "}" -> atom_units
+          | "(" expr ")"
 
     %import common.CNAME -> NAME
     %import common.NUMBER
     %import common.WS_INLINE
 
     %ignore WS_INLINE
-    """, start='toplevel')
+    """, start='toplevel', parser='lalr', transformer=TreeTransformer())
 
     return parser.parse(s)
 
@@ -88,6 +157,5 @@ if __name__ == '__main__':
     print(parse('unset x'))
     print(parse('def f(x, y) = (2 + x) * y'))
     print(parse('undef f'))
-    print(parse('x {(kg*m)/s}'))
-    print(parse('"1010" _ 21 {(kg*m)/s}'))
-    print(parse('[[1 2 3] [1+2 3+4 5+6]] {kg}').pretty())
+    print(parse('x {kg}'))
+    print(parse('[[1 2] [3 4]]'))
