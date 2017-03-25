@@ -161,4 +161,4 @@ if __name__ == '__main__':
     print(parse('def f(x, y) = (2 + x) * y'))
     print(parse('undef f'))
     print(parse('x {kg}'))
-    print(parse('[[1 2] [3 4]] {kg * m / s}'))
+    print(parse('[[1 2] [3 4]]'))

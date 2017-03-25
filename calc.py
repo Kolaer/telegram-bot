@@ -2,11 +2,12 @@ import math
 import operator
 from numbers import Number
 
+import numpy as np
+
 import parser
 
 
 class Environment(object):
-
     def __make(self):
         def sqrt(x):
             if isinstance(x, complex):
@@ -30,7 +31,9 @@ class Environment(object):
                           'lg': (1, math.log10),
                           'log2': (1, math.log2),
                           'fact': (1, lambda x: math.gamma(x + 1)),
-                          'sqrt': (1, sqrt)}
+                          'sqrt': (1, sqrt),
+                          'T': (1, np.transpose),
+                          'tr': (1, np.trace)}
 
         for (key, val) in self.functions.items():
             self.functions[key] = True, val
@@ -109,6 +112,12 @@ def calculate(s, env):
     """String, Environment -> Complex
         Выполнение вычисления в контексте окружения"""
 
+    def make_matrix(x):
+        if isinstance(x, Number):
+            return x
+        if x[0] == "matrix":
+            return [make_matrix(y) for y in x[1]]
+
     def evl(expr, env):
         if isinstance(expr, Number):
             return expr
@@ -119,6 +128,9 @@ def calculate(s, env):
                 return env.get_var(expr)
 
         (expr_type, *expr_body) = expr
+
+        if expr_type == "matrix":
+            return np.matrix(make_matrix(expr))
 
         if expr_type == "set":
             (variable, value_expr) = expr_body
@@ -177,6 +189,7 @@ def calculate(s, env):
 
     return evl(expr, env)
 
+
 if __name__ == "__main__":
     env = Environment()
     print(calculate('x = 3', env))
@@ -187,5 +200,6 @@ if __name__ == "__main__":
     print(calculate('undef f', env))
     print(calculate('cos(0)', env))
     print(calculate('-2 + 2', env))
+    print(calculate('tr([1 2] * T([1 2]))', env))
     print()
     print(env)
