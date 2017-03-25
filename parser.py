@@ -77,12 +77,12 @@ class TreeTransformer(Transformer):
     def unit_mul(self, x):
         a = x[0]
         b = x[1]
-        return ["unit_mul", a, b]
+        return ["unit_mul", a, str(b)]
 
     def unit_div(self, x):
         a = x[0]
         b = x[1]
-        return ["unit_div", a, b]
+        return ["unit_div", a, str(b)]
 
     def matrix(self, x):
         return ['matrix', x]
@@ -161,4 +161,4 @@ if __name__ == '__main__':
     print(parse('def f(x, y) = (2 + x) * y'))
     print(parse('undef f'))
     print(parse('x {kg}'))
-    print(parse('[[1 2] [3 4]]'))
+    print(parse('[[1 2] [3 4]] {kg * m / s}'))

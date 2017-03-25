@@ -115,7 +115,7 @@ def calculate(s, env):
 
         if isinstance(expr, str):
             if expr != "set" and expr != "apply" and expr != "unset" and expr != "def" and expr != "undef" \
-                    and expr != "matrix":
+                    and expr != "matrix" and expr != "with_units":
                 return env.get_var(expr)
 
         (expr_type, *expr_body) = expr
