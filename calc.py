@@ -9,12 +9,6 @@ import parser
 
 class Environment(object):
     def __make(self):
-        def sqrt(x):
-            if isinstance(x, complex):
-                return math.sqrt(x)
-            if x >= 0:
-                return math.sqrt(x)
-            return complex(0, math.sqrt(-x))
 
         self.variables = {'e': math.e, 'pi': math.pi}
         self.functions = {'+': (2, operator.add),
@@ -23,17 +17,20 @@ class Environment(object):
                           '*': (2, operator.mul),
                           '/': (2, operator.truediv),
                           'pow': (2, operator.pow),
-                          'sin': (1, math.sin),
-                          'cos': (1, math.cos),
-                          'tan': (1, math.tan),
-                          'ctg': (1, lambda x: 1 / math.tan(x)),
-                          'ln': (1, math.log),
-                          'lg': (1, math.log10),
-                          'log2': (1, math.log2),
+                          'sin': (1, np.sin),
+                          'cos': (1, np.cos),
+                          'tan': (1, np.tan),
+                          'ctg': (1, lambda x: 1 / np.tan(x)),
+                          'ln': (1, np.log),
+                          'lg': (1, np.log10),
+                          'log2': (1, np.log2),
                           'fact': (1, lambda x: math.gamma(x + 1)),
-                          'sqrt': (1, sqrt),
+                          'sqrt': (1, np.lib.emath.sqrt),
                           'T': (1, np.transpose),
-                          'tr': (1, np.trace)}
+                          'tr': (1, np.trace),
+                          'D': (1, np.linalg.det),
+                          'rk': (1, np.linalg.matrix_rank),
+                          'inv': (1, np.linalg.inv)}
 
         for (key, val) in self.functions.items():
             self.functions[key] = True, val
