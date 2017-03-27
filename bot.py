@@ -1,3 +1,5 @@
+import shelve
+
 from telegram.ext import Updater, MessageHandler, Filters
 
 from calc import *
@@ -8,10 +10,11 @@ updater = Updater(fo.readline())
 
 fo.close()
 
-envs = dict()
+envs = shelve.open("MySuperCoolDataBase", writeback=True)
 
 
 def text_handler(bot, update):
+    """Обработчик сообщений"""
     chat_id = update.message.chat_id
     if chat_id not in envs:
         envs[chat_id] = Environment()

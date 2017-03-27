@@ -8,15 +8,16 @@ import parser
 
 
 class Environment(object):
+    """Класс окружений, сохраняет функции и переменные, множество окружений имеет древовидную иерархию"""
     def __make(self):
-
+        """Встроенные переменные и функции"""
         self.variables = {'e': math.e, 'pi': math.pi}
         self.functions = {'+': (2, operator.add),
                           '-': (2, operator.sub),
                           'neg': (1, lambda x: -x),
                           '*': (2, operator.mul),
                           '/': (2, operator.truediv),
-                          'pow': (2, operator.pow),
+                          'pow': (2, np.power),
                           'sin': (1, np.sin),
                           'cos': (1, np.cos),
                           'tan': (1, np.tan),
@@ -45,9 +46,11 @@ class Environment(object):
             self.functions = dict()
 
     def set_var(self, variable, value):
+        """Установка переменной"""
         self.variables[variable] = value
 
     def del_var(self, variable):
+        """Рекурсивное удаление переменной"""
         if variable in self.variables:
             del self.variables[variable]
             return
@@ -58,6 +61,7 @@ class Environment(object):
         self.root.del_var(variable)
 
     def get_var(self, variable):
+        """Рекурсивное получение значения переменной"""
         if variable in self.variables:
             return self.variables[variable]
 
@@ -67,12 +71,14 @@ class Environment(object):
         return self.root.get_var(variable)
 
     def set_function(self, function, arity, body):
+        """Установка функции"""
         if function in self.functions and self.functions[function][0]:
             raise RuntimeError('Trying overwrite a built-in function')
 
         self.functions[function] = (False, (arity, body))
 
     def del_function(self, function):
+        """Рекурсивное удаление функции"""
         if function in self.functions:
             del self.functions[function]
             return
@@ -83,6 +89,7 @@ class Environment(object):
         self.root.del_function(function)
 
     def get_function(self, function):
+        """Рекурсивное получение функции"""
         if function in self.functions:
             return self.functions[function]
 
@@ -110,12 +117,14 @@ def calculate(s, env):
         Выполнение вычисления в контексте окружения"""
 
     def make_matrix(x):
+        """Построение массива для создания матрицы"""
         if isinstance(x, Number):
             return x
         if x[0] == "matrix":
             return [make_matrix(y) for y in x[1]]
 
     def evl(expr, env):
+        """Вычислене выражения в окружении"""
         if isinstance(expr, Number):
             return expr
 
@@ -159,8 +168,10 @@ def calculate(s, env):
             return apply(f_name, f_args, env)
 
     def apply(f, f_args, env):
+        """Применение функции к аргументам (создаётся под-окружение для вычисления)"""
         (builtin, (arity, fn)) = env.get_function(f)
 
+        # Встроенная функция (обычная функция из питона)
         if builtin:
             if arity == len(f_args):
 
@@ -170,6 +181,8 @@ def calculate(s, env):
             else:
                 raise RuntimeError("Function {} has arity {}, but called with {} args.".format(f, arity, len(f_args)))
 
+        # Пользователькая функция
+
         function_env = Environment(root=env)
 
         (f_vars, body) = fn
@@ -177,6 +190,7 @@ def calculate(s, env):
         if arity != len(f_args):
             raise RuntimeError("Function {} has arity {}, but called with {} args.".format(f, arity, len(f_args)))
 
+        # Вычисление аргументов
         for i in range(len(f_vars)):
             function_env.set_var(f_vars[i], evl(f_args[i], env))
 
@@ -187,6 +201,7 @@ def calculate(s, env):
     return evl(expr, env)
 
 
+# Примеры
 if __name__ == "__main__":
     env = Environment()
     print(calculate('x = 3', env))
@@ -198,5 +213,6 @@ if __name__ == "__main__":
     print(calculate('cos(0)', env))
     print(calculate('-2 + 2', env))
     print(calculate('tr([1 2] * T([1 2]))', env))
+    print(calculate('[1 2 3] ^ 2', env))
     print()
     print(env)

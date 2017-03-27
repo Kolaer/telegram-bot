@@ -4,6 +4,8 @@ from lark import Lark, Transformer
 
 
 class TreeTransformer(Transformer):
+    """Класс-трансформер для преобразования AST"""
+
     def unset(self, x):
         return ["unset", str(x[0])]
 
@@ -88,10 +90,12 @@ class TreeTransformer(Transformer):
         return ['matrix', x]
 
     def args(self, x):
-        return [k for k in x]
+        return x
 
 
 def parse(s):
+    """String -> Labeled-value
+    Парсинг строки в удобный для вычислений вид"""
     parser = Lark(r"""
     ?toplevel : expr
               | assign
