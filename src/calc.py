@@ -4,7 +4,7 @@ from numbers import Number
 
 import numpy as np
 
-import parser
+from src import parser
 
 
 class Environment(object):

@@ -2,7 +2,7 @@ import shelve
 
 from telegram.ext import Updater, MessageHandler, Filters
 
-from calc import *
+from src.calc import *
 
 fo = open("telegram_token", "r")
 
