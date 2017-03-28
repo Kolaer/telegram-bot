@@ -14,18 +14,16 @@ class Environment(object):
         self.variables = {'e': math.e, 'pi': math.pi}
         self.functions = {'+': (2, operator.add),
                           '-': (2, operator.sub),
-                          'neg': (1, lambda x: -x),
+                          'neg': (1, operator.neg),
                           '*': (2, operator.mul),
                           '/': (2, operator.truediv),
                           'pow': (2, np.power),
                           'sin': (1, np.sin),
                           'cos': (1, np.cos),
                           'tan': (1, np.tan),
-                          'ctg': (1, lambda x: 1 / np.tan(x)),
                           'ln': (1, np.log),
                           'lg': (1, np.log10),
                           'log2': (1, np.log2),
-                          'fact': (1, lambda x: math.gamma(x + 1)),
                           'sqrt': (1, np.lib.emath.sqrt),
                           'T': (1, np.transpose),
                           'tr': (1, np.trace),
@@ -111,6 +109,12 @@ class Environment(object):
 
         return res
 
+    def get_data(self):
+        return [self.variables, self.functions]
+
+    def set_data(self, data):
+        self.variables = data[0]
+        self.functions = data[1]
 
 def calculate(s, env):
     """String, Environment -> Complex
