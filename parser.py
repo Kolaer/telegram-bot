@@ -13,7 +13,10 @@ class TreeTransformer(Transformer):
         return ["undef", str(func[0])]
 
     def num(self, x):
-        return float(x[0])
+        try:
+            return int(x[0])
+        except:
+            return float(x[0])
 
     def complex_num(self, x):
         return complex(0, float(x[0]))

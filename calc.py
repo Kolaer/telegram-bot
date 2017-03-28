@@ -212,7 +212,6 @@ if __name__ == "__main__":
     print(calculate('undef f', env))
     print(calculate('cos(0)', env))
     print(calculate('-2 + 2', env))
-    print(calculate('tr([1 2] * T([1 2]))', env))
-    print(calculate('[1 2 3] ^ 2', env))
+    print(calculate('tr(T([2 1]) * [1 2])', env))
     print()
     print(env)
