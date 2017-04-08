@@ -147,7 +147,7 @@ def calculate(s, env):
             return expr
 
         if isinstance(expr, str):
-            if expr not in ["set", "apply", "unset", "def", "undef", "matrix", "with_units"]:
+            if expr not in ["set", "apply", "unset", "def", "undef", "matrix", "with_units", "convert"]:
                 return env.get_var(expr)
 
         (expr_type, *expr_body) = expr
@@ -158,6 +158,10 @@ def calculate(s, env):
         if expr_type == "with_units":
             val, units = expr_body
             return evl(val, env) * ureg(make_units(units))
+
+        if expr_type == "convert":
+            val, units = expr_body
+            return evl(val, env).to(ureg(make_units(units)))
 
         if expr_type == "set":
             (variable, value_expr) = expr_body
@@ -225,7 +229,7 @@ def calculate(s, env):
 # Примеры
 if __name__ == "__main__":
     env = Environment()
-    print(calculate('x = 3', env))
+    print(calculate('x = 3 + 3', env))
     print(calculate('def f(x, y) = x + y', env))
     print(calculate('f(2, 3)', env))
     print(calculate('unset x', env))
@@ -234,5 +238,6 @@ if __name__ == "__main__":
     print(calculate('-2 + 2', env))
     print(calculate('tr(T([2 1]) * [1 2])', env))
     print(calculate('[1 2] {m / s} * 3 {s}', env))
+    print(calculate('(<10>36 / 10) {km/hr} -> {m/s}', env))
     print()
     print(env)

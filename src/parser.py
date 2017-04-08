@@ -89,11 +89,18 @@ class TreeTransformer(Transformer):
         b = x[1]
         return ["unit_div", a, str(b)]
 
+    def units(self, x):
+        return x[0]
+
     def matrix(self, x):
         return ['matrix', x]
 
     def args(self, x):
         return x
+
+    def convert(self, x):
+        val, to = x
+        return ["convert", val, to]
 
     def number_base(self, x):
         digits = x[:-1]
@@ -117,6 +124,7 @@ class TreeTransformer(Transformer):
 
 parser = Lark(r"""
     ?toplevel : expr
+              | expr "->" units -> convert
               | assign
               | unset -> unset
               | def_func
@@ -143,7 +151,7 @@ parser = Lark(r"""
     ?exp  : atom
           | exp ("**" | "^") atom -> pow
 
-    ?args : expr ("," expr)*
+    args : expr ("," expr)*
 
     ?matrix : "[" expr+ "]"
 
@@ -152,7 +160,7 @@ parser = Lark(r"""
                 | units_inner "/" NAME -> unit_div
                 | "(" units_inner ")"
 
-    ?units: "{" units_inner+ "}"
+    ?units: "{" units_inner "}" -> units
 
     ?number_base : "<" (DIGIT | LETTER)+ ">" INT
 
@@ -199,3 +207,4 @@ if __name__ == '__main__':
     print(parse('x {(kg * m) / s}'))
     print(parse('[[1 2] [3 4]]'))
     print(parse('<ff>16 + <101>2'))
+    print(parse('x {kg} -> {mg}'))
