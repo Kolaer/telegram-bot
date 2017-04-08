@@ -3,3 +3,6 @@
 Зависимости:
 * python-telegram-bot
 * lark
+* pytest
+* pytest-cov
+* coverage
