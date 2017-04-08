@@ -95,14 +95,30 @@ class TreeTransformer(Transformer):
     def args(self, x):
         return x
 
+    def number_base(self, x):
+        digits = x[:-1]
+        base = int(str(x[-1]))
 
-def parse(s):
-    """String -> Labeled-value
-    Парсинг строки в удобный для вычислений вид"""
-    parser = Lark(r"""
+        tmp = 1
+        res = 0
+
+        digits.reverse()
+
+        for digit in digits:
+            digit = str(digit)
+            if ord('0') <= ord(digit) <= ord('9'):
+                res += (ord(digit) - ord('0')) * tmp
+            else:
+                res += (ord(digit) - ord('a') + 10) * tmp
+            tmp *= base
+
+        return res
+
+
+parser = Lark(r"""
     ?toplevel : expr
               | assign
-              | unset
+              | unset -> unset
               | def_func
               | undef_func -> undef
 
@@ -135,8 +151,10 @@ def parse(s):
                 | units_inner "*" NAME -> unit_mul
                 | units_inner "/" NAME -> unit_div
                 | "(" units_inner ")"
-    
+
     ?units: "{" units_inner+ "}"
+
+    ?number_base : "<" (DIGIT | LETTER)+ ">" INT
 
     ?atom : NUMBER -> num
           | NUMBER ("i" | "j") -> complex_num
@@ -145,16 +163,25 @@ def parse(s):
           | NAME "(" args? ")" -> func_call
           | matrix
           | atom units -> atom_units
+          | number_base
           | "(" expr ")"
 
     %import common.CNAME -> NAME
+    %import common.LCASE_LETTER -> LETTER
     %import common.NUMBER
+    %import common.INT
+    %import common.DIGIT
     %import common.WS_INLINE
 
     %ignore WS_INLINE
-    """, start='toplevel', parser='lalr', transformer=TreeTransformer())
+    """, start='toplevel')
+transformer = TreeTransformer()
 
-    return parser.parse(s)
+
+def parse(s):
+    """String -> Labeled-value
+    Парсинг строки в удобный для вычислений вид"""
+    return transformer.transform(parser.parse(s))
 
 # Примеры
 if __name__ == '__main__':
@@ -171,3 +198,4 @@ if __name__ == '__main__':
     print(parse('undef f'))
     print(parse('x {(kg * m) / s}'))
     print(parse('[[1 2] [3 4]]'))
+    print(parse('<ff>16 + <101>2'))
