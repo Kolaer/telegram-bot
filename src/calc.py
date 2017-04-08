@@ -3,9 +3,11 @@ import operator
 from numbers import Number
 
 import numpy as np
+import pint
 
 from src import parser
 
+ureg = pint.UnitRegistry()
 
 class Environment(object):
     """Класс окружений, сохраняет функции и переменные, множество окружений имеет древовидную иерархию"""
@@ -127,20 +129,35 @@ def calculate(s, env):
         if x[0] == "matrix":
             return [make_matrix(y) for y in x[1]]
 
+    def make_units(x):
+        if isinstance(x, str):
+            return x
+        if x[0] == "unit_mul":
+            a = make_units(x[1])
+            b = make_units(x[2])
+            return '({} * {})'.format(a, b)
+        if x[0] == "unit_div":
+            a = make_units(x[1])
+            b = make_units(x[2])
+            return '({} / {})'.format(a, b)
+
     def evl(expr, env):
         """Вычислене выражения в окружении"""
         if isinstance(expr, Number):
             return expr
 
         if isinstance(expr, str):
-            if expr != "set" and expr != "apply" and expr != "unset" and expr != "def" and expr != "undef" \
-                    and expr != "matrix" and expr != "with_units":
+            if expr not in ["set", "apply", "unset", "def", "undef", "matrix", "with_units"]:
                 return env.get_var(expr)
 
         (expr_type, *expr_body) = expr
 
         if expr_type == "matrix":
             return np.matrix(make_matrix(expr))
+
+        if expr_type == "with_units":
+            val, units = expr_body
+            return evl(val, env) * ureg(make_units(units))
 
         if expr_type == "set":
             (variable, value_expr) = expr_body
@@ -209,7 +226,6 @@ def calculate(s, env):
 if __name__ == "__main__":
     env = Environment()
     print(calculate('x = 3', env))
-    print(calculate('fact(x ^ 2)', env))
     print(calculate('def f(x, y) = x + y', env))
     print(calculate('f(2, 3)', env))
     print(calculate('unset x', env))
@@ -217,5 +233,6 @@ if __name__ == "__main__":
     print(calculate('cos(0)', env))
     print(calculate('-2 + 2', env))
     print(calculate('tr(T([2 1]) * [1 2])', env))
+    print(calculate('[1 2] {m / s} * 3 {s}', env))
     print()
     print(env)

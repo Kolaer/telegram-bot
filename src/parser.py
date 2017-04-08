@@ -77,7 +77,7 @@ class TreeTransformer(Transformer):
         return ['with_units', a, b]
 
     def unit(self, x):
-        return ["unit", str(x[0])]
+        return str(x[0])
 
     def unit_mul(self, x):
         a = x[0]
@@ -129,12 +129,14 @@ def parse(s):
 
     ?args : expr ("," expr)*
 
-    ?units : NAME -> unit
-           | units "*" NAME -> unit_mul
-           | units "/" NAME -> unit_div
-           | "(" units ")"
-
     ?matrix : "[" expr+ "]"
+
+    ?units_inner: NAME -> unit
+                | units_inner "*" NAME -> unit_mul
+                | units_inner "/" NAME -> unit_div
+                | "(" units_inner ")"
+    
+    ?units: "{" units_inner+ "}"
 
     ?atom : NUMBER -> num
           | NUMBER ("i" | "j") -> complex_num
@@ -142,7 +144,7 @@ def parse(s):
           | "-" atom -> neg
           | NAME "(" args? ")" -> func_call
           | matrix
-          | atom "{" units "}" -> atom_units
+          | atom units -> atom_units
           | "(" expr ")"
 
     %import common.CNAME -> NAME
@@ -167,5 +169,5 @@ if __name__ == '__main__':
     print(parse('unset x'))
     print(parse('def f(x, y) = (2 + x) * y'))
     print(parse('undef f'))
-    print(parse('x {kg}'))
+    print(parse('x {(kg * m) / s}'))
     print(parse('[[1 2] [3 4]]'))
