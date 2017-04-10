@@ -226,18 +226,3 @@ def calculate(s, env):
     return evl(expr, env)
 
 
-# Примеры
-if __name__ == "__main__":
-    env = Environment()
-    print(calculate('x = 3 + 3', env))
-    print(calculate('def f(x, y) = x + y', env))
-    print(calculate('f(2, 3)', env))
-    print(calculate('unset x', env))
-    print(calculate('undef f', env))
-    print(calculate('cos(0)', env))
-    print(calculate('-2 + 2', env))
-    print(calculate('tr(T([2 1]) * [1 2])', env))
-    print(calculate('[1 2] {m / s} * 3 {s}', env))
-    print(calculate('(<10>36 / 10) {km/hr} -> {m/s}', env))
-    print()
-    print(env)
