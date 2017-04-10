@@ -190,21 +190,3 @@ def parse(s):
     """String -> Labeled-value
     Парсинг строки в удобный для вычислений вид"""
     return transformer.transform(parser.parse(s))
-
-# Примеры
-if __name__ == '__main__':
-    print(parse('1'))
-    print(parse('1j'))
-    print(parse('-2'))
-    print(parse('2 - 1j'))
-    print(parse('sin(2)'))
-    print(parse('(1 + 2) * 3'))
-    print(parse('x = y'))
-    print(parse('z = x + y^3'))
-    print(parse('unset x'))
-    print(parse('def f(x, y) = (2 + x) * y'))
-    print(parse('undef f'))
-    print(parse('x {(kg * m) / s}'))
-    print(parse('[[1 2] [3 4]]'))
-    print(parse('<ff>16 + <101>2'))
-    print(parse('x {kg} -> {mg}'))
