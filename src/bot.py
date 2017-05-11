@@ -3,17 +3,20 @@
 для данных каждого пользователя.
 """
 import logging
+import os
 import shelve
 
 from telegram.ext import Updater, MessageHandler, Filters
 
 from src.calc import *
 
+dir_path = os.path.dirname(os.path.realpath(__file__))
+
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
-fo = open("telegram_token", "r")
+fo = open(dir_path + "/telegram_token", "r")
 
-updater = Updater(fo.readline())
+updater = Updater(fo.readline().strip())
 
 fo.close()
 
