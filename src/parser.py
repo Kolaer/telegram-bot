@@ -153,7 +153,7 @@ parser = Lark(r"""
 
     args : expr ("," expr)*
 
-    ?matrix : "[" expr+ "]"
+    ?matrix : "[" expr ("," expr)* "]"
 
     ?units_inner: NAME -> unit
                 | units_inner "*" NAME -> unit_mul
