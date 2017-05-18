@@ -17,6 +17,20 @@ if __name__ == '__main__':
     updater = Updater(fo.readline().strip())
 
     fo.close()
+    
+    def helpFn(bot, update,args):
+        dom = xml.dom.minidom.parse('demo.xml')
+        dom.normalize()
+        node1 = dom.getElementsByTagName('help')
+        title = dom.getElementsByTagName('title')
+        if args==[]:
+            for node in title:
+                bot.sendMessage(chat_id=update.message.chat_id, text=node.childNodes[0].nodeValue)
+
+         else:
+           for node in node1:
+            if args[0] == node.getAttribute('id'):
+                bot.sendMessage(chat_id=update.message.chat_id, text=node.childNodes[0].nodeValue)
 
     with shelve.open("MySuperCoolDataBase", writeback=True) as envs:
         def text_handler(bot, update):
@@ -43,8 +57,9 @@ if __name__ == '__main__':
 
             bot.sendMessage(chat_id=chat_id, text=res)
             envs.sync()
-
-
+            
+        updater.dispatcher.add_handler(CommandHandler('help', helpFn, pass_args=True))
+        
         updater.dispatcher.add_handler(MessageHandler(Filters.text, text_handler))
 
         updater.start_polling()
